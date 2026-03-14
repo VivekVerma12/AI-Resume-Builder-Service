@@ -3,7 +3,7 @@ import bcrypt from "bcrypt"
 import jwt from 'jsonwebtoken'
 
 const generateToken = (userId) => {
-    const token = jwt.sign({userId}, process.env.JWT_SECRET , {expiresIn: '20'});
+    const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '20' });
     return token;
 }
 
@@ -51,6 +51,25 @@ export const loginUser = async (req, res) => {
         const token = generateToken(userExist._id)
         userExist.password = undefined;
         return res.status(201).json({ success: true, message: 'User created successfully.', token, user: userExist })
+
+    } catch (error) {
+        console.error(" -> ", error);
+        return res.status(500).json({ success: false, message: 'Oops! something went wrong.' })
+    }
+}
+
+export const getUserById = async (req, res) => {
+    try {
+
+        const userId = req.userId;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(400).json({ success: false, message: "User not found." })
+        }
+
+        user.password = undefined;
+        return res.status(201).json({ success: true, data: user })
 
     } catch (error) {
         console.error(" -> ", error);
