@@ -1,6 +1,7 @@
 import User from "../models/User";
 import bcrypt from "bcrypt"
 import jwt from 'jsonwebtoken'
+import Resume from "../models/Resume";
 
 const generateToken = (userId) => {
     const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '20' });
@@ -70,6 +71,23 @@ export const getUserById = async (req, res) => {
 
         user.password = undefined;
         return res.status(201).json({ success: true, data: user })
+
+    } catch (error) {
+        console.error(" -> ", error);
+        return res.status(500).json({ success: false, message: 'Oops! something went wrong.' })
+    }
+}
+
+export const getUserResume = async (req, res) => {
+    try {
+
+        const userId = req.userId;
+
+        const userResume = await Resume.find({ userId });
+        if (!userResume) {
+            return res.status(400).json({ success: false, message: "User not found." })
+        }
+        return res.status(201).json({ success: true, data: userResume })
 
     } catch (error) {
         console.error(" -> ", error);
